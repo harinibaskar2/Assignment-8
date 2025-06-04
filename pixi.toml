@@ -1,0 +1,11 @@
+[workspace]
+authors = ["Alex Truong <46734496+alexhtruong@users.noreply.github.com>"]
+channels = ["https://conda.modular.com/max-nightly", "conda-forge"]
+name = "life"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+modular = ">=25.4.0.dev2025060220,<26"
