@@ -55,21 +55,30 @@ struct PrimV:
 
     fn __init__(out self, s: String):
         self.s = s
+    
+    fn __copyinit__(out self, existing: Self):
+        self.s = existing.s
+
+    fn __moveinit__(out self, owned existing: Self):
+        self.s = existing.s
 
 struct Expr:
     var num: Optional[NumV]
     var str: Optional[StringV]
     var bool: Optional[BoolV]
+    var prim: Optional[PrimV]
 
-    fn __init__(out self, num: Optional[NumV], str: Optional[StringV], bool: Optional[BoolV]):
+    fn __init__(out self, num: Optional[NumV], str: Optional[StringV], bool: Optional[BoolV], prim: Optional[PrimV] = None):
         self.num = num
         self.str = str
         self.bool = bool
+        self.prim = prim
 
     fn __copyinit__(out self, existing: Self):
         self.num = existing.num
         self.str = existing.str
         self.bool = existing.bool
+        self.prim = existing.prim
 
     fn __str__(self) -> String:
         if self.num:
@@ -78,6 +87,8 @@ struct Expr:
             return self.str.value().s
         if self.bool:
             return String(self.bool.value().b)
+        if self.prim:
+            return "#<primop>"
         return "None"
     
     fn __rep__(self) -> String:
@@ -87,6 +98,8 @@ struct Expr:
             return "StringV"
         if self.bool:
             return "BoolV"
+        if self.prim:
+            return "PrimV"
         return "None"
 
 struct Env:
@@ -139,10 +152,12 @@ fn main():
     var strTest = Expr(num=None, str=StringV("hi"), bool=None)
     var numTest = Expr(num=NumV(5), str=None, bool=None)
     var boolTest = Expr(num=None, str=None, bool=BoolV(True))
+    var prim_expr = Expr(num=None, str=None, bool=None, prim=PrimV("+"))
 
     interp(strTest)
     interp(numTest)
     interp(boolTest)
+    interp(prim_expr)
 
 fn println(s: StringV):
     print(s.__str__())
@@ -164,7 +179,8 @@ fn interp(expr: Expr):
         print("test2")
     elif representation == "BoolV":
         print("test3")
-
+    elif representation == "PrimV":
+        print("test4")
 
 
 
