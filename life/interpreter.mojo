@@ -1,5 +1,4 @@
-
-#Data Defintions 
+#Data Defintions
 
 struct NumV:
     var number: Float64
@@ -126,38 +125,37 @@ struct CloV:
         print("Body:", "ExprC instance")
         print("Env:", "Env instance")
 
+fn serialize(expr: Expr) -> String:
+    if expr.num:
+        return String(expr.num.value().number)
+    elif expr.str:
+        return "\"" + expr.str.value().s + "\""
+    elif expr.bool:
+        if expr.bool.value().b:
+            return "true"
+        else:
+            return "false"
+    elif expr.prim:
+        return "#<primop>"
+    else:
+        return "QTUM: unknown value"
+
+fn top_interp(expr: Expr) -> String:
+    var result = interp(expr)  
+    return serialize(expr)     
 
 
 fn main():
-    # var num_val = NumV(3.14)
-    # num_val.dump()
-
-    # var str_val = StringV("Hello, Mojo!")
-    # str_val.dump()
-
-
-
-    # var val = BoolV(True)
-    # val.dump()  
-
-    # var args: List[String] = []
-    # args.append(String("x"))
-    # args.append(String("y"))
-
-    # var body = Expr()  
-    # var env = Env()  
-
-    # var closure = CloV(args, body, env)
-    # closure.dump()
     var strTest = Expr(num=None, str=StringV("hi"), bool=None)
     var numTest = Expr(num=NumV(5), str=None, bool=None)
     var boolTest = Expr(num=None, str=None, bool=BoolV(True))
     var prim_expr = Expr(num=None, str=None, bool=None, prim=PrimV("+"))
 
-    interp(strTest)
-    interp(numTest)
-    interp(boolTest)
-    interp(prim_expr)
+    print(top_interp(strTest))  
+    print(top_interp(numTest)) 
+    print(top_interp(boolTest))
+    print(top_interp(prim_expr))
+
 
 fn println(s: StringV):
     print(s.__str__())
