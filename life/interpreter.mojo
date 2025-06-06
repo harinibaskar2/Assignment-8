@@ -204,9 +204,9 @@ fn read_str() raises -> StringV:
     str = input(">")
     return StringV(str)
 
-
 fn interp(expr: Expr) -> Expr:
     var representation = expr.__rep__()
+    # For now, just return the expr itself as the evaluation result
     if representation == "StringV":
         return expr
     elif representation == "NumV":
@@ -216,9 +216,8 @@ fn interp(expr: Expr) -> Expr:
     elif representation == "PrimV":
         return expr
     else:
-        # Raise an error or return some error expression
-        raise RuntimeError("interp: Unknown expression type")
-
+        # In case of unknown expr type, just return expr
+        return expr
 
 
 
