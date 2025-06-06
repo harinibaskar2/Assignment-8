@@ -173,7 +173,10 @@ fn serialize(expr: Expr) -> String:
 fn interp(expr: Expr) raises -> Expr:
     var representation = expr.__rep__()
     # Check if expr is one of the valid types
-    if representation not in ["StringV", "NumV", "BoolV", "PrimV"]:
+    if (representation != "StringV" and 
+        representation != "NumV" and 
+        representation != "BoolV" and 
+        representation != "PrimV"):
         raise Error("Invalid expression type: " + representation)
         
     # Return the expr itself as the evaluation result
@@ -224,7 +227,7 @@ fn test_interp_error() raises:
     assert_equal(result, "QTUM: unknown value")
 
 
-fn test_add_1_plus_1():
+fn test_add_1_plus_1() raises:
     var left = Expr(num=NumV(1.0), str=None, bool=None)
     var right = Expr(num=NumV(1.0), str=None, bool=None)
     var sum = left.num.value().number + right.num.value().number
