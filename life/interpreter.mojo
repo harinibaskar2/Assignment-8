@@ -1,3 +1,6 @@
+from testing import assert_equal
+
+
 #Data Defintions
 
 struct NumV:
@@ -60,6 +63,7 @@ struct PrimV:
 
     fn __moveinit__(out self, owned existing: Self):
         self.s = existing.s
+
 
 struct Expr:
     var num: Optional[NumV]
@@ -141,11 +145,34 @@ fn serialize(expr: Expr) -> String:
         return "QTUM: unknown value"
 
 fn top_interp(expr: Expr) -> String:
-    var result = interp(expr)  
-    return serialize(expr)     
+    var result = interp(expr)
+    return serialize(result)
 
 
-fn main():
+from testing import assert_equal
+
+
+
+fn test_interp_string() raises:
+    var result = top_interp(Expr(num=None, str=StringV("hi"), bool=None))
+    assert_equal(result, "\"hi\"")
+
+fn test_interp_num() raises:
+    var result = top_interp(Expr(num=NumV(5.0), str=None, bool=None))
+    assert_equal(result, "5.0")
+
+fn test_interp_bool() raises:
+    var result = top_interp(Expr(num=None, str=None, bool=BoolV(True)))
+    assert_equal(result, "true")
+
+fn test_interp_prim() raises:
+    var result = top_interp(Expr(num=None, str=None, bool=None, prim=PrimV("+")))
+    assert_equal(result, "#<primop>")
+
+
+
+
+fn main() raises:
     var strTest = Expr(num=None, str=StringV("hi"), bool=None)
     var numTest = Expr(num=NumV(5), str=None, bool=None)
     var boolTest = Expr(num=None, str=None, bool=BoolV(True))
@@ -155,6 +182,15 @@ fn main():
     print(top_interp(numTest)) 
     print(top_interp(boolTest))
     print(top_interp(prim_expr))
+
+    test_interp_string()
+    test_interp_num()
+    test_interp_bool()
+    test_interp_prim()
+
+    print("All tests passed!")
+
+
 
 
 fn println(s: StringV):
@@ -168,17 +204,23 @@ fn read_str() raises -> StringV:
     str = input(">")
     return StringV(str)
 
-fn interp(expr: Expr):
+
+fn interp(expr: Expr) -> Expr:
     var representation = expr.__rep__()
-    print("interp:", expr.__str__())
     if representation == "StringV":
-        print("test")
+        return expr
     elif representation == "NumV":
-        print("test2")
+        return expr
     elif representation == "BoolV":
-        print("test3")
+        return expr
     elif representation == "PrimV":
-        print("test4")
+        return expr
+    else:
+        # Raise an error or return some error expression
+        raise RuntimeError("interp: Unknown expression type")
+
+
+
 
 
 
