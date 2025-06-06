@@ -1,7 +1,6 @@
 from testing import assert_equal
 
-
-#Data Defintions
+# Data Definitions
 
 struct NumV:
     var number: Float64
@@ -37,6 +36,7 @@ struct StringV:
     fn dump(self):
         print(self.s)
 
+
 struct BoolV:
     var b: Bool
 
@@ -52,12 +52,13 @@ struct BoolV:
     fn dump(self):
         print(self.b)
 
+
 struct PrimV:
     var s: String
 
     fn __init__(out self, s: String):
         self.s = s
-    
+
     fn __copyinit__(out self, existing: Self):
         self.s = existing.s
 
@@ -105,12 +106,14 @@ struct Expr:
             return "PrimV"
         return "None"
 
+
 struct Env:
     fn __init__(out self):
         pass
 
     fn __copyinit__(out self, existing: Self):
         pass
+
 
 struct CloV:
     var args: List[String]
@@ -129,6 +132,9 @@ struct CloV:
         print("Body:", "ExprC instance")
         print("Env:", "Env instance")
 
+
+# Core Functions
+
 fn serialize(expr: Expr) -> String:
     if expr.num:
         return String(expr.num.value().number)
@@ -144,14 +150,27 @@ fn serialize(expr: Expr) -> String:
     else:
         return "QTUM: unknown value"
 
+fn interp(expr: Expr) -> Expr:
+    var representation = expr.__rep__()
+    # For now, just return the expr itself as the evaluation result
+    if representation == "StringV":
+        return expr
+    elif representation == "NumV":
+        return expr
+    elif representation == "BoolV":
+        return expr
+    elif representation == "PrimV":
+        return expr
+    else:
+        # In case of unknown expr type, just return expr
+        return expr
+
 fn top_interp(expr: Expr) -> String:
     var result = interp(expr)
     return serialize(result)
 
 
-from testing import assert_equal
-
-
+# Test Functions
 
 fn test_interp_string() raises:
     var result = top_interp(Expr(num=None, str=StringV("hi"), bool=None))
@@ -170,7 +189,21 @@ fn test_interp_prim() raises:
     assert_equal(result, "#<primop>")
 
 
+# Utility Functions
 
+fn println(s: StringV):
+    print(s.__str__())
+
+fn read_num() raises -> NumV:
+    num = input(">")
+    return NumV(Float64(atol(num)))
+
+fn read_str() raises -> StringV:
+    str = input(">")
+    return StringV(str)
+
+
+# Main function
 
 fn main() raises:
     var strTest = Expr(num=None, str=StringV("hi"), bool=None)
@@ -189,38 +222,3 @@ fn main() raises:
     test_interp_prim()
 
     print("All tests passed!")
-
-
-
-
-fn println(s: StringV):
-    print(s.__str__())
-
-fn read_num() raises -> NumV:
-    num = input(">")
-    return NumV(Float64(atol(num)))
-
-fn read_str() raises -> StringV:
-    str = input(">")
-    return StringV(str)
-
-fn interp(expr: Expr) -> Expr:
-    var representation = expr.__rep__()
-    # For now, just return the expr itself as the evaluation result
-    if representation == "StringV":
-        return expr
-    elif representation == "NumV":
-        return expr
-    elif representation == "BoolV":
-        return expr
-    elif representation == "PrimV":
-        return expr
-    else:
-        # In case of unknown expr type, just return expr
-        return expr
-
-
-
-
-
-
