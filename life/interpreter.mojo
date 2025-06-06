@@ -2,6 +2,7 @@ from testing import assert_equal
 
 # Data Definitions
 
+
 struct NumV:
     var number: Float64
 
@@ -72,7 +73,13 @@ struct Expr:
     var bool: Optional[BoolV]
     var prim: Optional[PrimV]
 
-    fn __init__(out self, num: Optional[NumV], str: Optional[StringV], bool: Optional[BoolV], prim: Optional[PrimV] = None):
+    fn __init__(
+        out self,
+        num: Optional[NumV],
+        str: Optional[StringV],
+        bool: Optional[BoolV],
+        prim: Optional[PrimV] = None,
+    ):
         self.num = num
         self.str = str
         self.bool = bool
@@ -94,7 +101,7 @@ struct Expr:
         if self.prim:
             return "#<primop>"
         return "None"
-    
+
     fn __rep__(self) -> String:
         if self.num:
             return "NumV"
@@ -135,11 +142,12 @@ struct CloV:
 
 # Core Functions
 
+
 fn serialize(expr: Expr) -> String:
     if expr.num:
         return String(expr.num.value().number)
     elif expr.str:
-        return "\"" + expr.str.value().s + "\""
+        return '"' + expr.str.value().s + '"'
     elif expr.bool:
         if expr.bool.value().b:
             return "true"
@@ -149,6 +157,7 @@ fn serialize(expr: Expr) -> String:
         return "#<primop>"
     else:
         return "QTUM: unknown value"
+
 
 fn interp(expr: Expr) -> Expr:
     var representation = expr.__rep__()
@@ -165,6 +174,7 @@ fn interp(expr: Expr) -> Expr:
         # In case of unknown expr type, just return expr
         return expr
 
+
 fn top_interp(expr: Expr) -> String:
     var result = interp(expr)
     return serialize(result)
@@ -172,31 +182,53 @@ fn top_interp(expr: Expr) -> String:
 
 # Test Functions
 
+
 fn test_interp_string() raises:
     var result = top_interp(Expr(num=None, str=StringV("hi"), bool=None))
-    assert_equal(result, "\"hi\"")
+    assert_equal(result, '"hi"')
+
 
 fn test_interp_num() raises:
     var result = top_interp(Expr(num=NumV(5.0), str=None, bool=None))
     assert_equal(result, "5.0")
 
+
 fn test_interp_bool() raises:
     var result = top_interp(Expr(num=None, str=None, bool=BoolV(True)))
     assert_equal(result, "true")
 
+
 fn test_interp_prim() raises:
-    var result = top_interp(Expr(num=None, str=None, bool=None, prim=PrimV("+")))
+    var result = top_interp(
+        Expr(num=None, str=None, bool=None, prim=PrimV("+"))
+    )
     assert_equal(result, "#<primop>")
+
+
+fn test_interp_error() raises:
+    var result = top_interp(Expr(num=None, str=None, bool=None, prim=None))
+    assert_equal(result, "QTUM: unknown value")
+
+
+fn test_add_1_plus_1():
+    var left = Expr(num=NumV(1.0), str=None, bool=None)
+    var right = Expr(num=NumV(1.0), str=None, bool=None)
+    var sum = left.num.value().number + right.num.value().number
+    var result = Expr(num=NumV(sum), str=None, bool=None)
+    print(top_interp(result))
 
 
 # Utility Functions
 
+
 fn println(s: StringV):
     print(s.__str__())
+
 
 fn read_num() raises -> NumV:
     num = input(">")
     return NumV(Float64(atol(num)))
+
 
 fn read_str() raises -> StringV:
     str = input(">")
@@ -205,20 +237,25 @@ fn read_str() raises -> StringV:
 
 # Main function
 
+
 fn main() raises:
     var strTest = Expr(num=None, str=StringV("hi"), bool=None)
     var numTest = Expr(num=NumV(5), str=None, bool=None)
     var boolTest = Expr(num=None, str=None, bool=BoolV(True))
     var prim_expr = Expr(num=None, str=None, bool=None, prim=PrimV("+"))
+    var error_expr = Expr(num=None, str=None, bool=None, prim=None)
 
-    print(top_interp(strTest))  
-    print(top_interp(numTest)) 
+    print(top_interp(strTest))
+    print(top_interp(numTest))
     print(top_interp(boolTest))
     print(top_interp(prim_expr))
+    print(top_interp(error_expr))
 
     test_interp_string()
     test_interp_num()
     test_interp_bool()
     test_interp_prim()
+    test_interp_error()
+    test_add_1_plus_1()
 
     print("All tests passed!")
