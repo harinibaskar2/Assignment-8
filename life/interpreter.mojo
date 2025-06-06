@@ -6,12 +6,23 @@ from testing import assert_equal
 struct NumV:
     var number: Float64
 
+    # constructor method
+    # called when creating a new instance of struct
+    # out keyowrd indicates method will modify instance being created
     fn __init__(out self, number: Float64):
         self.number = number
 
+    # copy constructor
+    # called when making a copy of an instance, 
+    # ex: 
+    # var num1 = NumV(10.0)
+    # var num2 = num2 copies the instance of num1 - they don't share memory
     fn __copyinit__(out self, existing: Self):
         self.number = existing.number
 
+    # move constructor
+    # transfers ownership of resources from one object to another
+    # performance beneficial in things like avoiding expensive copying operations
     fn __moveinit__(out self, owned existing: Self):
         self.number = existing.number
 
@@ -159,9 +170,13 @@ fn serialize(expr: Expr) -> String:
         return "QTUM: unknown value"
 
 
-fn interp(expr: Expr) -> Expr:
+fn interp(expr: Expr) raises -> Expr:
     var representation = expr.__rep__()
-    # For now, just return the expr itself as the evaluation result
+    # Check if expr is one of the valid types
+    if representation not in ["StringV", "NumV", "BoolV", "PrimV"]:
+        raise Error("Invalid expression type: " + representation)
+        
+    # Return the expr itself as the evaluation result
     if representation == "StringV":
         return expr
     elif representation == "NumV":
@@ -171,11 +186,10 @@ fn interp(expr: Expr) -> Expr:
     elif representation == "PrimV":
         return expr
     else:
-        # In case of unknown expr type, just return expr
-        return expr
+        # This should never be reached due to the check above
+        raise Error("Unexpected error in interp")
 
-
-fn top_interp(expr: Expr) -> String:
+fn top_interp(expr: Expr) raises -> String:
     var result = interp(expr)
     return serialize(result)
 
